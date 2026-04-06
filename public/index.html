@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invoice OCR App</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Hệ thống xử lý hóa đơn tự động</h1>
+      <p>Upload ảnh hóa đơn để OCR, trích xuất thông tin và lưu vào Firestore</p>
+    </header>
+
+    <section class="card">
+      <h2>Tải hóa đơn lên</h2>
+      <form id="uploadForm">
+        <input type="file" id="invoiceFile" name="invoice" accept="image/*,.pdf" required />
+        <button type="submit">Upload và OCR</button>
+      </form>
+      <div id="uploadStatus" class="status"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-title">
+        <h2>Danh sách hóa đơn OCR</h2>
+        <button id="refreshBtn" type="button">Tải dữ liệu</button>
+      </div>
+      <div id="invoiceList" class="invoice-list">
+        <p>Chưa có dữ liệu</p>
+      </div>
+    </section>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
