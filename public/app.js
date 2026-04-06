@@ -33,12 +33,12 @@ async function loadInvoices() {
       </div>
     `).join("");
   } catch (error) {
-    invoiceList.innerHTML = <p style="color:red;">Lỗi tải dữ liệu: ${error.message}</p>;
+    invoiceList.innerHTML = `<p style="color:red;">Lỗi tải dữ liệu: ${error.message}</p>`;
   }
 }
 
 function toggleText(id) {
-  const el = document.getElementById(ocr-${id});
+  const el = document.getElementById(`ocr-${id}`);
   if (!el) return;
   el.style.display = el.style.display === "none" ? "block" : "none";
 }
@@ -84,7 +84,7 @@ uploadForm.addEventListener("submit", async (e) => {
     await loadInvoices();
   } catch (error) {
     uploadStatus.className = "status error";
-    uploadStatus.textContent = Lỗi: ${error.message};
+    uploadStatus.textContent = `Lỗi: ${error.message}`;
   }
 });
 
