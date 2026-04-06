@@ -90,4 +90,8 @@ uploadForm.addEventListener("submit", async (e) => {
 
 refreshBtn.addEventListener("click", loadInvoices);
 
+<<<<<<< HEAD
 loadInvoices();
+=======
+loadInvoices();
+>>>>>>> 77bf064 (giao dien)
