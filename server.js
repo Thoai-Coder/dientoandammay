@@ -33,21 +33,26 @@ const upload = multer({
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/api/health", (req, res) => {
   res.json({
     ok: true,
-    service: "invoice-ocr-app",
+    service: "invoice-app",
     bucket: BUCKET_NAME,
-    mode: "upload-only-event-driven"
+    project: GOOGLE_CLOUD_PROJECT,
+    mode: "event-driven"
   });
 });
 
 app.post("/api/upload", upload.single("invoice"), async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ error: "Chưa chọn file" });
+      return res.status(400).json({
+        success: false,
+        error: "Chưa chọn file"
+      });
     }
 
     const originalName = req.file.originalname;
@@ -63,17 +68,18 @@ app.post("/api/upload", upload.single("invoice"), async (req, res) => {
 
     const gcsUri = `gs://${BUCKET_NAME}/${safeName}`;
 
-    res.json({
+    return res.json({
       success: true,
-      message: "Upload thành công, file đã đưa lên Cloud Storage và đang chờ OCR xử lý",
-      file_name: originalName,
-      stored_name: safeName,
-      gcs_uri: gcsUri,
+      message: "Upload thành công. Hệ thống đang OCR tự động.",
+      fileName: originalName,
+      storedName: safeName,
+      gcsUri,
       status: "uploaded"
     });
   } catch (error) {
     console.error("Upload error:", error);
-    res.status(500).json({
+    return res.status(500).json({
+      success: false,
       error: "Lỗi upload file",
       details: error.message
     });
@@ -84,18 +90,31 @@ app.get("/api/invoices", async (req, res) => {
   try {
     const snapshot = await firestore
       .collection("invoices")
-      .orderBy("uploaded_at", "desc")
+      .orderBy("createdAt", "desc")
       .get();
 
-    const invoices = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+    const invoices = snapshot.docs.map((doc) => {
+      const data = doc.data() || {};
 
-    res.json(invoices);
+      return {
+        id: doc.id,
+        fileName: data.fileName || "",
+        bucket: data.bucket || "",
+        gcsUri: data.gcsUri || "",
+        contentType: data.contentType || "",
+        text: data.text || "",
+        vendor: data.vendor || "Chưa xác định",
+        invoiceDate: data.invoiceDate || "Chưa xác định",
+        totalAmount: data.totalAmount || "Chưa xác định",
+        status: data.status || "unknown",
+        createdAt: data.createdAt || ""
+      };
+    });
+
+    return res.json(invoices);
   } catch (error) {
     console.error("Fetch invoices error:", error);
-    res.status(500).json({
+    return res.status(500).json({
       error: "Không lấy được danh sách hóa đơn",
       details: error.message
     });
@@ -107,20 +126,37 @@ app.get("/api/invoices/:id", async (req, res) => {
     const doc = await firestore.collection("invoices").doc(req.params.id).get();
 
     if (!doc.exists) {
-      return res.status(404).json({ error: "Không tìm thấy hóa đơn" });
+      return res.status(404).json({
+        error: "Không tìm thấy hóa đơn"
+      });
     }
 
-    res.json({
+    const data = doc.data() || {};
+
+    return res.json({
       id: doc.id,
-      ...doc.data()
+      fileName: data.fileName || "",
+      bucket: data.bucket || "",
+      gcsUri: data.gcsUri || "",
+      contentType: data.contentType || "",
+      text: data.text || "",
+      vendor: data.vendor || "Chưa xác định",
+      invoiceDate: data.invoiceDate || "Chưa xác định",
+      totalAmount: data.totalAmount || "Chưa xác định",
+      status: data.status || "unknown",
+      createdAt: data.createdAt || ""
     });
   } catch (error) {
     console.error("Get invoice error:", error);
-    res.status(500).json({
+    return res.status(500).json({
       error: "Không lấy được chi tiết hóa đơn",
       details: error.message
     });
   }
+});
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 app.listen(PORT, () => {

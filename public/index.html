@@ -3,34 +3,72 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Invoice OCR App</title>
+  <title>Hệ thống xử lý hóa đơn tự động</title>
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Hệ thống xử lý hóa đơn tự động</h1>
-      <p>Upload ảnh hóa đơn để OCR, trích xuất thông tin và lưu vào Firestore</p>
+  <div class="page">
+    <header class="hero">
+      <div>
+        <p class="badge">Event-Driven • Cloud Run • Firestore</p>
+        <h1>Hệ thống xử lý hóa đơn tự động</h1>
+        <p class="hero-text">
+          Tải ảnh hoặc PDF hóa đơn lên hệ thống. File sẽ được lưu vào Cloud Storage,
+          kích hoạt OCR Function tự động, sau đó lưu kết quả vào Firestore để hiển thị trên web.
+        </p>
+      </div>
     </header>
 
-    <section class="card">
-      <h2>Tải hóa đơn lên</h2>
-      <form id="uploadForm">
-        <input type="file" id="invoiceFile" name="invoice" accept="image/*,.pdf" required />
-        <button type="submit">Upload và OCR</button>
-      </form>
-      <div id="uploadStatus" class="status"></div>
-    </section>
+    <main class="layout">
+      <section class="panel upload-panel">
+        <h2>Tải hóa đơn lên</h2>
+        <p class="muted">
+          Hỗ trợ ảnh và PDF. Sau khi upload, hệ thống sẽ OCR tự động trong vài giây.
+        </p>
 
-    <section class="card">
-      <div class="section-title">
-        <h2>Danh sách hóa đơn OCR</h2>
-        <button id="refreshBtn" type="button">Tải dữ liệu</button>
-      </div>
-      <div id="invoiceList" class="invoice-list">
-        <p>Chưa có dữ liệu</p>
-      </div>
-    </section>
+        <form id="uploadForm" class="upload-form">
+          <label class="file-box" for="invoiceFile">
+            <input
+              type="file"
+              id="invoiceFile"
+              name="invoice"
+              accept="image/*,.pdf"
+              required
+            />
+            <span>Chọn file hóa đơn</span>
+          </label>
+
+          <button type="submit" class="primary-btn">Upload file</button>
+        </form>
+
+        <div id="uploadStatus" class="status"></div>
+
+        <div class="tips">
+          <h3>Luồng xử lý</h3>
+          <ol>
+            <li>Upload file lên web</li>
+            <li>File được lưu vào Cloud Storage</li>
+            <li>Event kích hoạt OCR Function</li>
+            <li>Vision OCR đọc nội dung</li>
+            <li>Kết quả lưu vào Firestore</li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="panel list-panel">
+        <div class="list-header">
+          <div>
+            <h2>Danh sách hóa đơn OCR</h2>
+            <p class="muted">Dữ liệu lấy trực tiếp từ Firestore</p>
+          </div>
+          <button id="refreshBtn" type="button" class="secondary-btn">Tải dữ liệu</button>
+        </div>
+
+        <div id="invoiceList" class="invoice-list">
+          <div class="empty-state">Chưa có dữ liệu</div>
+        </div>
+      </section>
+    </main>
   </div>
 
   <script src="/app.js"></script>
